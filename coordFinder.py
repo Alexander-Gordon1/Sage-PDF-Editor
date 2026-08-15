@@ -1,7 +1,7 @@
 import fitz
 import matplotlib.pyplot as plt
 
-doc = fitz.open("templates/customer_reg.pdf")
+doc = fitz.open("origonalPDFs/Botox consent form 2025.pdf")
 page = doc[0]
 pix = page.get_pixmap(dpi=150)
 img = pix.tobytes("png")
