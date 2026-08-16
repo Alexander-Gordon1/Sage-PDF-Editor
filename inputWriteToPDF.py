@@ -7,7 +7,8 @@ import fitz  # PyMuPDF
 
 colGRAY = (122/255, 121/255, 121/255)
 colGREEN = (94/255, 142/255, 39/255)
-
+colBLACK = (0, 0, 0)
+import time
 
 # extracts the instruction from the csv format
 def parse_instruction(cell_text):
@@ -75,9 +76,9 @@ def open_and_write(file_name, patient_dict):
         except Exception as e:
             print(f"Error adding text {text} to PDF: {e}")
 
-    doc.save("outputfromtestprogram.pdf") # NEEDS TO BE CHANGES TO SAVE INTO A DUMP FOLDER, ALSO TO BE DELETED AFTER PRINTING. 
+    doc.save(f"output/{file_name}_{int(time.time())}.pdf") # NEEDS TO BE CHANGES TO SAVE INTO A DUMP FOLDER, ALSO TO BE DELETED AFTER PRINTING. 
     doc.close()
-    print(f"Saved: {"outputfromtestprogram.pdf"}")
+    print(f"Saved: {f'output/{file_name}_{int(time.time())}.pdf'}")
         
         
     
@@ -95,12 +96,24 @@ def main():
     "ADDRESS1": "14 Elm Grove, Southampton, SO15 2JA",
     "ADDRESS2": "",
     "ADDRESS3": "",
-    "GP": "Dr Patel",
-    "SURGERY_DATE": "15/08/2026",
-    # ... whatever else your 11 fields are
-}
+    "DATE_OF_APPOINTMENT": "15/08/2026",
+    "PREFERRED_GP": "Dr Patel",
+    "SURGERY": "15/08/2026",
+    "BOTOX_BATCH": "NO_1781617",
+    "BOTOX_EXPIRY_DATE": "15/08/2026",
+    "IN_NORMAL_SALINE": "15/08/2026",
+    "NOK_NAME": "John Doe",
+    "NOK_RELATIONSHIP": "Brother",
+    "NOK_PHONE": "0123456789",
+    "CONTACT_DETAILS": "idk im sure you have them all now",
+    "PHONE_NUMBER": "0123456789",
+    "EMAIL_ADDRESS": "john.smith@example.com",
+    "GENDER": "Male",
+    "AGE": "36",
 
-    open_and_write("Botox consent form 2025.pdf", patient_data)  # Replace "example_file_name" with the actual file name you want to process
+    }
+
+    open_and_write("Sage MS Consent Form V 1.pdf", patient_data)  # Replace "example_file_name" with the actual file name you want to process
 
 
 if __name__ == "__main__":

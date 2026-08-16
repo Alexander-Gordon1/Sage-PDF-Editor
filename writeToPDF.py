@@ -11,7 +11,7 @@ colGREEN = (94/255, 142/255, 39/255)
 
 def add_text_to_pdf( ):
    
-    doc = fitz.open("origonalPDFs/Botox consent form 2025.pdf")
+    doc = fitz.open("GDPR Notice for signature.pdf")
 
 
     try:

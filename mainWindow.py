@@ -25,7 +25,7 @@ class MainWindow(QMainWindow):
         layout.addWidget(splitter)
 
         self.file_list_panel = FileListPanel()
-        self.details_panel = DetailsPanel()
+        self.details_panel = DetailsPanel(file_list_panel=self.file_list_panel)
 
         splitter.addWidget(self.file_list_panel)
         splitter.addWidget(self.details_panel)
@@ -34,6 +34,7 @@ class MainWindow(QMainWindow):
         splitter.setSizes([320, 780])
 
         self.file_list_panel.file_selected.connect(self.details_panel.show_file)
+        self.file_list_panel.files_checked.connect(self.details_panel.on_files_checked)
 
         self.load_pdf_files()
 
