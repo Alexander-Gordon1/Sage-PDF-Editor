@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from PySide6.QtCore import Qt, Signal
+from PySide6.QtCore import Qt, Signal, QEvent 
 from PySide6.QtWidgets import QFrame, QLabel, QListWidget, QListWidgetItem, QVBoxLayout
 
 
@@ -32,6 +32,8 @@ class FileListPanel(QFrame):
         self.list_widget = QListWidget()
         self.list_widget.itemSelectionChanged.connect(self._on_selection_changed)
         self.list_widget.itemChanged.connect(self._on_item_changed)
+        self.list_widget.itemClicked.connect(self._on_item_clicked)  
+        
         layout.addWidget(self.list_widget)
 
         # Cached copy of the checked files, kept in sync via _on_item_changed
@@ -98,3 +100,10 @@ class FileListPanel(QFrame):
     # so in practice this only fires on check-state changes.)
     def _on_item_changed(self, item: QListWidgetItem) -> None:
         self.files_checked.emit(self._refresh_checked_files())
+
+    def _on_item_clicked(self, item: QListWidgetItem) -> None:
+        """Fires when a row is clicked anywhere (not just the checkbox) — toggles its check state."""
+        if item.checkState() == Qt.Checked:
+            item.setCheckState(Qt.Unchecked)
+        else:
+            item.setCheckState(Qt.Checked)

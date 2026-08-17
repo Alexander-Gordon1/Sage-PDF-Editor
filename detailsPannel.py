@@ -3,12 +3,14 @@ from __future__ import annotations
 import csv
 from pathlib import Path
 from typing import Optional
+import datetime 
 
 from PySide6.QtCore import Qt, Slot
 from PySide6.QtWidgets import (
     QFrame,
     QLabel,
     QVBoxLayout,
+    QHBoxLayout,
     QLineEdit,
     QScrollArea,
     QPushButton,
@@ -17,6 +19,7 @@ from PySide6.QtWidgets import (
     QSpacerItem,
     QSizePolicy,
 )
+from PySide6.QtGui import QIntValidator, QFont
 
 from inputWriteToPDF import open_and_write, colGREEN
 
@@ -41,7 +44,7 @@ class DetailsPanel(QFrame):
             "EMAIL_ADDRESS": "",
             "GENDER": "",
             "AGE": "",
-            "DATE_OF_APPOINTMENT": "",
+            "DATE_OF_APPOINTMENT": datetime.date.today().strftime("%d %m %y"),
             "PREFERRED_GP": "",
             "SURGERY": "",
             "BOTOX_BATCH": "",
@@ -77,7 +80,7 @@ class DetailsPanel(QFrame):
         # Container widget inside scroll area
         self.scroll_container = QWidget()
         self.scroll_layout = QVBoxLayout(self.scroll_container)
-        self.scroll_layout.setContentsMargins(0, 0, 0, 0)
+        self.scroll_layout.setContentsMargins(10, 10, 10, 10)
         self.scroll_layout.setSpacing(8)
         
         self.scroll_area.setWidget(self.scroll_container)
@@ -107,6 +110,8 @@ class DetailsPanel(QFrame):
             f"    background-color: rgb({int(r*0.9)}, {int(g*0.9)}, {int(b*0.9)});"
             f"}}"
         )
+
+    
     
     def _load_csv_fields(self, checked_files: list[Path]) -> list[str]:
         """
@@ -149,17 +154,23 @@ class DetailsPanel(QFrame):
         except Exception as e:
             print(f"Error reading CSV: {e}")
             return []
-    
+
+
+
+
+
+    #########################
+    #blow is elements being created
+
+    #      ---------text boxes being created ------
+
     def _create_text_boxes(self, field_names: list[str]) -> None:
         """
         Create text boxes for the given field names.
         Clears existing text boxes first.
         """
         # Clear existing widgets from scroll layout
-        while self.scroll_layout.count() > 0:
-            item = self.scroll_layout.takeAt(0)
-            if item.widget():
-                item.widget().deleteLater()
+        self._clear_layout(self.scroll_layout)
         
         # Clear text box references
         self.text_boxes.clear()
@@ -172,32 +183,171 @@ class DetailsPanel(QFrame):
             self.scroll_layout.addWidget(label)
             
             # Create text box
-            text_box = QLineEdit()
-            text_box.setPlaceholderText(f"Enter {field_name}")
-            self.text_boxes[field_name] = text_box
-            self.scroll_layout.addWidget(text_box)
+            if field_name == "DOB":
+                date_row = self.create_date_entry()
+                self.scroll_layout.addLayout(date_row)
+                self.text_boxes[field_name] = (self.day_box, self.month_box, self.year_box)
+
+
+            else:
+
+                text_box = QLineEdit()
+                text_box.setPlaceholderText(f"Enter {field_name}")
+                self.text_boxes[field_name] = text_box
+                self.scroll_layout.addWidget(text_box)
         
         # Add vertical spacer at bottom to push content to top
         spacer = QSpacerItem(20, 40, QSizePolicy.Minimum, QSizePolicy.Expanding)
         self.scroll_layout.addSpacing(8)
         self.scroll_layout.addItem(spacer)
+
+
+
+
+
+
+    # ------- date input boxes ---------
+
+    def create_date_entry(self):
+        """Builds a segmented DD/MM/YYYY date entry widget and returns it as a layout."""
+        row = QHBoxLayout()
+        row.setSpacing(6)
+
+        box_style = """
+            QLineEdit {
+                border: 2px solid black;
+                font-size: 16px;
+                max-width: 35px;
+                max-height: 30px;
+                padding: 5px;
+                qproperty-alignment: AlignCenter;
+            }
+        """
+
+        # Day box
+        self.day_box = QLineEdit()
+        self.day_box.setMaxLength(2)
+        self.day_box.setValidator(QIntValidator(1, 31))
+        self.day_box.setAlignment(Qt.AlignCenter)
+        self.day_box.setStyleSheet(box_style)
+        self.day_box.setPlaceholderText("DD")
+
+        slash1 = QLabel("/")
+        slash1.setStyleSheet("font-size: 20px;")
+
+        # Month box
+        self.month_box = QLineEdit()
+        self.month_box.setMaxLength(2)
+        self.month_box.setValidator(QIntValidator(1, 12))
+        self.month_box.setAlignment(Qt.AlignCenter)
+        self.month_box.setStyleSheet(box_style)
+        self.month_box.setPlaceholderText("MM")
+
+        slash2 = QLabel("/")
+        slash2.setStyleSheet("font-size: 20px;")
+
+        # Year box
+        self.year_box = QLineEdit()
+        self.year_box.setMaxLength(4)
+        self.year_box.setValidator(QIntValidator(1900, 2100))
+        self.year_box.setAlignment(Qt.AlignCenter)
+        #self.year_box.setStyleSheet(box_style)
+        self.year_box.setPlaceholderText("YYYY")
+        self.year_box.setStyleSheet(
+            """
+            QLineEdit {
+                    border: 2px solid black;
+                    font-size: 16px;
+                    max-width: 45px;
+                    max-height: 30px;
+                    padding: 5px;
+                    qproperty-alignment: AlignCenter;
+                }
+            """)
+
+        row.addWidget(self.day_box)
+        row.addWidget(slash1)
+        row.addWidget(self.month_box)
+        row.addWidget(slash2)
+        row.addWidget(self.year_box)
+        row.addStretch()
+
+        # Auto-advance focus once a box is full
+        self.day_box.textChanged.connect(
+            lambda text: self._maybe_advance(text, self.month_box, 2)
+        )
+        self.month_box.textChanged.connect(
+            lambda text: self._maybe_advance(text, self.year_box, 2)
+        )
+
+        return row
+
+
+    def _maybe_advance(self, text, next_box, full_length):
+        """Move focus to the next box once the current box reaches full_length chars."""
+        if len(text) >= full_length:
+            next_box.setFocus()
+            next_box.selectAll()
+
+    def get_date_of_appointment(self):
+        day = self.day_box.text().zfill(2)
+        month = self.month_box.text().zfill(2)
+        year = self.year_box.text()
+        return f"{day} {month} {year}"
+
+
+    def _clear_layout(self, layout) -> None:
+        """Recursively remove and delete all widgets/sub-layouts from a layout."""
+        while layout.count() > 0:
+            item = layout.takeAt(0)
+            widget = item.widget()
+            if widget:
+                widget.deleteLater()
+            else:
+                sub_layout = item.layout()
+                if sub_layout:
+                    self._clear_layout(sub_layout)
+
+
+
+    # -------- end of date input boxes ----------
+
+
+        
     
+
+    # fetching data from text boxes and date ui to the data dictionary 
+
     def _sync_data_from_ui(self) -> None:
-        """
-        Read all text box values and update patient_data dictionary.
-        """
+        
         for field_name, text_box in self.text_boxes.items():
-            self.patient_data[field_name] = text_box.text()
+            if field_name != "DOB" :
+                self.patient_data[field_name] = text_box.text()
+
+        self.patient_data["DOB"] = self.get_date_of_appointment()
+
+
+    #checks if all values are empty or not for submission
+    def _all_fields_filled(self) -> bool:
+        for field_name, text_box in self.text_boxes.items():
+            if field_name != "DOB" and text_box.text().strip() == "":
+                return False
+
+        # Check DOB as well
+        if not self.patient_data.get("DOB"):
+            return False
+
+        return True
+
+        
+
+
     
     def _handle_empty_state(self) -> None:
         """
         Handle the empty state when no files are checked.
         """
-        # Clear text boxes from scroll layout
-        while self.scroll_layout.count() > 0:
-            item = self.scroll_layout.takeAt(0)
-            if item.widget():
-                item.widget().deleteLater()
+        self._clear_layout(self.scroll_layout)
         
         self.text_boxes.clear()
         self.title_label.setVisible(False)
@@ -227,42 +377,58 @@ class DetailsPanel(QFrame):
         
         # Reset patient data
         for key in self.patient_data:
-            self.patient_data[key] = ""
+            if key != "DATE_OF_APPOINTMENT":  # Keep the default date
+                self.patient_data[key] = ""
+            
     
     @Slot()
     def on_submit(self) -> None:
         """
         Submit button handler. Syncs data and writes to PDFs.
         """
+
         # Sync text box values to patient_data
         self._sync_data_from_ui()
-        
-        # Print for debugging
-        print(f"Submitting patient data: {self.patient_data}")
-        
-        # Call open_and_write for each checked file
-        try:
-            for file_path in self.checked_files:
-                print(f"Writing to {file_path.name}...")
-                open_and_write(file_path.name, self.patient_data)
+
+        if self._all_fields_filled() != False:
             
-            # Show success message
-            QMessageBox.information(
-                self,
-                "Success",
-                f"Successfully wrote data to {len(self.checked_files)} PDF(s)."
-            )
+
             
-            # Reset form
-            self.on_files_checked(self.checked_files)
-        
-        except Exception as e:
+            
+            # Print for debugging
+            print(f"Submitting patient data: {self.patient_data}")
+            
+            # Call open_and_write for each checked file
+            try:
+                for file_path in self.checked_files:
+                    print(f"Writing to {file_path.name}...")
+                    open_and_write(file_path.name, self.patient_data)
+                
+                # Show success message
+                QMessageBox.information(
+                    self,
+                    "Success",
+                    f"Successfully wrote data to {len(self.checked_files)} PDF(s)."
+                )
+                
+                # Reset form
+                self.on_files_checked(self.checked_files)
+            
+            except Exception as e:
+                QMessageBox.critical(
+                    self,
+                    "Error",
+                    f"Error writing to PDFs: {e}"
+                )
+                print(f"Error: {e}")
+
+        else:
             QMessageBox.critical(
                 self,
                 "Error",
-                f"Error writing to PDFs: {e}"
+                "All fields must be filled"
             )
-            print(f"Error: {e}")
+            
     
     @Slot(Path)
     def show_file(self, file_path: Optional[Path]) -> None:
