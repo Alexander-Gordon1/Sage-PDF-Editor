@@ -72,7 +72,7 @@ class DetailsPanel(QFrame):
         
         # Title label (always visible)
         self.title_label = QLabel("Patient Details")
-        self.title_label.setStyleSheet("font-size: 18px; font-weight: 600;")
+        self.title_label.setStyleSheet("font-size: 24px; font-weight: 600;")
         self.title_label.setVisible(True)
         main_layout.addWidget(self.title_label)
         

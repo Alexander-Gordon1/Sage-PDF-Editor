@@ -116,7 +116,7 @@ class FileListPanel(QFrame):
         item.setCheckState(Qt.Unchecked)
         # Increase font size
         font = QFont()
-        font.setPointSize(10)
+        font.setPointSize(15)
         item.setFont(font)
         return item
 
