@@ -4,6 +4,7 @@ from PySide6.QtCore import Qt
 from PySide6.QtWidgets import QHBoxLayout, QMainWindow, QMessageBox, QSplitter, QWidget
 
 from config import PDF_DIR
+from fileListConfig import sorted_pdf_files
 from detailsPannel import DetailsPanel #had widgets. infrom 
 from fileListPannel import FileListPanel #same as above
 
@@ -24,6 +25,8 @@ class MainWindow(QMainWindow):
         splitter = QSplitter(Qt.Horizontal)
         layout.addWidget(splitter)
 
+        
+
         self.file_list_panel = FileListPanel()
         self.details_panel = DetailsPanel(file_list_panel=self.file_list_panel)
 
@@ -39,6 +42,8 @@ class MainWindow(QMainWindow):
         self.load_pdf_files()
 
     def load_pdf_files(self) -> None:
+        #PDF_DIR is the path to get to origonalPDFs folder 
+
         if not PDF_DIR.exists():
             QMessageBox.warning(
                 self,
@@ -52,7 +57,17 @@ class MainWindow(QMainWindow):
             key=lambda p: p.name.lower(),
         )
 
-        self.file_list_panel.populate(pdf_files)
+
+
+
+
+        #calls the loading of pdf files into the file list panel
+        #so any re ordering needs to happen here. 
+        self.file_list_panel.populate(sorted_pdf_files(pdf_files))
+
+
+
+
 
         if not pdf_files:
             self.details_panel.show_message("No PDF files were found in PDF_DIR.")

@@ -4,6 +4,7 @@ import csv
 from pathlib import Path
 from typing import Optional
 import datetime 
+from dataclasses import dataclass, field
 
 from PySide6.QtCore import Qt, Slot
 from PySide6.QtWidgets import (
@@ -22,6 +23,8 @@ from PySide6.QtWidgets import (
 from PySide6.QtGui import QIntValidator, QFont
 
 from inputWriteToPDF import open_and_write, colGREEN
+
+from detailsPannelDataClass import FIELD_CONFIG, _get_config, DEFAULT_ORDER, _sorted_fields
 
 
 class DetailsPanel(QFrame):
@@ -67,10 +70,10 @@ class DetailsPanel(QFrame):
         main_layout.setContentsMargins(12, 12, 12, 12)
         main_layout.setSpacing(8)
         
-        # Title label (will be hidden when no files checked)
+        # Title label (always visible)
         self.title_label = QLabel("Patient Details")
         self.title_label.setStyleSheet("font-size: 18px; font-weight: 600;")
-        self.title_label.setVisible(False)
+        self.title_label.setVisible(True)
         main_layout.addWidget(self.title_label)
         
         # Scroll area for dynamic text boxes
@@ -80,8 +83,8 @@ class DetailsPanel(QFrame):
         # Container widget inside scroll area
         self.scroll_container = QWidget()
         self.scroll_layout = QVBoxLayout(self.scroll_container)
-        self.scroll_layout.setContentsMargins(10, 10, 10, 10)
-        self.scroll_layout.setSpacing(8)
+        self.scroll_layout.setContentsMargins(12, 0, 12, 0)  # left, top, right, bottom
+        self.scroll_layout.setSpacing(0)
         
         self.scroll_area.setWidget(self.scroll_container)
         main_layout.addWidget(self.scroll_area, 1)  # Give scroll area stretch
@@ -165,38 +168,48 @@ class DetailsPanel(QFrame):
     #      ---------text boxes being created ------
 
     def _create_text_boxes(self, field_names: list[str]) -> None:
-        """
-        Create text boxes for the given field names.
-        Clears existing text boxes first.
-        """
-        # Clear existing widgets from scroll layout
         self._clear_layout(self.scroll_layout)
-        
-        # Clear text box references
         self.text_boxes.clear()
-        
-        # Create text boxes for each field
-        for field_name in field_names:
-            # Create label
-            label = QLabel(field_name)
-            label.setStyleSheet("font-weight: 600; color: rgb(122, 121, 121);")
-            self.scroll_layout.addWidget(label)
-            
-            # Create text box
-            if field_name == "DOB":
+
+        for index, field_name in enumerate(_sorted_fields(field_names)):
+            config = _get_config(field_name)
+
+            if index == 0:
+                # Create label using the friendly display text, not the raw field name
+                label = QLabel(config.label)
+                label.setStyleSheet("font-weight: 600; font-size: 19px; color: rgb(122, 121, 121);")
+                label.setContentsMargins(0, 3, 0, 0) # left, top, right, bottom
+                self.scroll_layout.addWidget(label)
+            else:  
+                # Create label using the friendly display text, not the raw field name
+                label = QLabel(config.label)
+                label.setStyleSheet("font-weight: 600; font-size: 19px; color: rgb(122, 121, 121);")
+                label.setContentsMargins(0, 18, 0, 0) # left, top, right, bottom
+                self.scroll_layout.addWidget(label) 
+                
+
+            if config.field_type == "date":
                 date_row = self.create_date_entry()
+                date_row.setContentsMargins(0, 1, 0, 0) # left, top, right, bottom
                 self.scroll_layout.addLayout(date_row)
                 self.text_boxes[field_name] = (self.day_box, self.month_box, self.year_box)
-
-
             else:
-
                 text_box = QLineEdit()
-                text_box.setPlaceholderText(f"Enter {field_name}")
+                text_box.setPlaceholderText(config.placeholder)
+                if config.default_value:
+                    text_box.setText(config.default_value)
+                # Set adjustable height
+                text_box.setMinimumHeight(30)
+                text_box.setMaximumHeight(30 * 3)
+                # Set font size and color
+                font = QFont()
+                font.setPointSize(13)
+                text_box.setFont(font)
+                text_box.setStyleSheet("QLineEdit { color: black; }")
+                text_box.setContentsMargins(0, 0, 0, 0) # left, top, right, bottom
                 self.text_boxes[field_name] = text_box
                 self.scroll_layout.addWidget(text_box)
-        
-        # Add vertical spacer at bottom to push content to top
+
         spacer = QSpacerItem(20, 40, QSizePolicy.Minimum, QSizePolicy.Expanding)
         self.scroll_layout.addSpacing(8)
         self.scroll_layout.addItem(spacer)
@@ -350,7 +363,6 @@ class DetailsPanel(QFrame):
         self._clear_layout(self.scroll_layout)
         
         self.text_boxes.clear()
-        self.title_label.setVisible(False)
         self.submit_button.setVisible(False)  # Safe now - button is in main layout, not scroll layout
     
     @Slot(list)
@@ -365,8 +377,7 @@ class DetailsPanel(QFrame):
             self._handle_empty_state()
             return
         
-        # Show title and button
-        self.title_label.setVisible(True)
+        # Show submit button
         self.submit_button.setVisible(True)
         
         # Load required fields from CSV
