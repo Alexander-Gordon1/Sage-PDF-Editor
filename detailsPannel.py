@@ -48,7 +48,10 @@ class DetailsPanel(QFrame):
             "GENDER": "",
             "AGE": "",
             "DATE_OF_APPOINTMENT": datetime.date.today().strftime("%d %m %y"),
-            "PREFERRED_GP": "",
+
+            "GP_SURGERY": "",
+            "USUAL_GP": "",
+
             "SURGERY": "",
             "BOTOX_BATCH": "",
             "BOTOX_EXPIRY_DATE": "",
@@ -337,7 +340,9 @@ class DetailsPanel(QFrame):
             if field_name != "DOB" :
                 self.patient_data[field_name] = text_box.text()
 
-        self.patient_data["DOB"] = self.get_date_of_appointment()
+        # Only sync DOB if it's in the required fields
+        if "DOB" in self.text_boxes:
+            self.patient_data["DOB"] = self.get_date_of_appointment()
 
 
     #checks if all values are empty or not for submission
@@ -346,9 +351,10 @@ class DetailsPanel(QFrame):
             if field_name != "DOB" and text_box.text().strip() == "":
                 return False
 
-        # Check DOB as well
-        if not self.patient_data.get("DOB"):
-            return False
+        # Check DOB only if it's a required field
+        if "DOB" in self.text_boxes:
+            if not self.patient_data.get("DOB"):
+                return False
 
         return True
 

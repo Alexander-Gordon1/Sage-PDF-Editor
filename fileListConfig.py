@@ -4,18 +4,17 @@
 from pathlib import Path
 
 PDF_ORDER = {
-    "Botox consent form 2025.pdf": 0,
-    "Filler Consent 2025.pdf": 1,
-    "GDPR Notice for signature.pdf": 2,
-    "Photographic consent form.pdf": 3,
-    "COVID Pre assessment.pdf": 4,
-    "GP Information existing patients.pdf": 5,
-    "Continuation Sheet.pdf": 6,
-    "Injectable patient notes PRINT INSTRUCTIONS 2 sheets per page plus single hairline border.pdf": 7,
-    "Next of Kin existing patients form .pdf": 8,
-    "Private Prescription Blank.pdf": 9,
-    "Sage Demographics and medical History sheet combo.pdf": 10,
-    "Sage MS Consent Form V 1.pdf": 11,
+    "Botox consent form.pdf": 0,
+    "Continuation sheet.pdf": 1,
+    "Filler Consent.pdf": 2,
+    "GDPR Consent.pdf": 3,
+    "Injectable patient notes AUTOFORM PRINT INSTRUCTIONS 2 sheets per page plus single hairline border copy.pdf": 4,
+    "MS Safer Surgery and op notes.pdf": 5,
+    "Photographic consent.pdf": 6,
+    "Private Px clarithro Mogs Blank.pdf": 7,
+    "Sage Demographics PMHx GP NOK.pdf": 8,
+    "Sage Dermoscopy Consultation & consent.pdf": 9,
+    "Sage MinSurg Consent.pdf": 10,
 }
 
 DIVIDER_AFTER = 4  # divider appears after this many ordered files

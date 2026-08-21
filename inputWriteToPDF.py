@@ -5,9 +5,10 @@
 
 import fitz  # PyMuPDF
 
-colGRAY = (122/255, 121/255, 121/255)
+colGREY = (166/255, 166/255, 166/255)
 colGREEN = (94/255, 142/255, 39/255)
 colBLACK = (0, 0, 0)
+colRED = (192/255, 0, 0)
 import time
 
 # extracts the instruction from the csv format
@@ -39,7 +40,7 @@ def add_text_to_pdf(doc, pageNumber, xPos, yPos, colour, textToInsert):
     page.insert_text(
         (xPos, yPos), # starts from bottom left and move right. 
         textToInsert, #text being incerted
-        fontsize=14, 
+        fontsize=12, 
         color=colour # can also be words, but restricted to on obv ones
     )
 

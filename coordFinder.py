@@ -1,8 +1,8 @@
 import fitz
 import matplotlib.pyplot as plt
 
-doc = fitz.open("origonalPDFs/Sage MS Consent Form V 1.pdf")
-page = doc[0]
+doc = fitz.open("origonalPDFs/Sage MinSurg Consent.pdf")
+page = doc[1]
 pix = page.get_pixmap(dpi=150)
 img = pix.tobytes("png")
 

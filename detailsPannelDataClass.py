@@ -37,8 +37,11 @@ FIELD_CONFIG: dict[str, FieldConfig] = {
     "SURGERY": FieldConfig(
         order=8, label="GP Surgery", placeholder="Enter surgery name"
     ),
-    "PREFERRED_GP": FieldConfig(
-        order=9, label="Preferred GP", placeholder="Enter GP name"
+    "USUAL_GP": FieldConfig(
+        order=9, label="Usual GP", placeholder="Enter GP name"
+    ),
+    "GP_SURGERY": FieldConfig(
+        order=10, label="GP Surgery", placeholder="Enter surgery name"
     ),
     "NOK_NAME": FieldConfig(
         order=10, label="Next of Kin Name", placeholder="Enter full name"
@@ -55,6 +58,10 @@ FIELD_CONFIG: dict[str, FieldConfig] = {
     "GENDER": FieldConfig(
         order=14, label="Gender", placeholder="e.g. Male, Female, Other"
     ),
+    "PHONE_NUMBER": FieldConfig(
+        order=15, label="Phone Number", placeholder="e.g. 07123 456789"
+    ),
+    
 }
 
 DEFAULT_ORDER = len(FIELD_CONFIG)
