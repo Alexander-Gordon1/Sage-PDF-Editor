@@ -3,15 +3,19 @@
 #gray = rgb(122, 121, 121)
 
 
+import os
 import fitz  # PyMuPDF
+from pathlib import Path
+
+from utils import resource_path, get_output_folder
 
 colGRAY = (122/255, 121/255, 121/255)
 colGREEN = (94/255, 142/255, 39/255)
 
 
 def add_text_to_pdf( ):
-   
-    doc = fitz.open("GDPR Notice for signature.pdf")
+
+    doc = fitz.open(resource_path("GDPR Notice for signature.pdf"))
 
 
     try:
@@ -27,9 +31,12 @@ def add_text_to_pdf( ):
         color=colGRAY # can also be words, but restricted to on obv ones
     )
 
-    doc.save("outputfromtestprogram.pdf")
+    output_folder = get_output_folder()
+    output_filename = "outputfromtestprogram.pdf"
+    output_path = os.path.join(output_folder, output_filename)
+    doc.save(output_path)
     doc.close()
-    print(f"Saved: {"outputfromtestprogram.pdf"}")
+    print(f"Saved: {output_path}")
 
 
 def main():

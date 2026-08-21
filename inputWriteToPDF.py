@@ -3,20 +3,24 @@
 #gray = rgb(122, 121, 121)
 
 
+import os
 import fitz  # PyMuPDF
+import time
+from pathlib import Path
+
+from utils import resource_path, get_output_folder
 
 colGREY = (166/255, 166/255, 166/255)
 colGREEN = (94/255, 142/255, 39/255)
 colBLACK = (0, 0, 0)
 colRED = (192/255, 0, 0)
-import time
 
 # extracts the instruction from the csv format
 def parse_instruction(cell_text):
     return cell_text.split('|+|')
 
 def find_pdf_in_csv(file_name):
-    with open('fileRecords.csv', 'r') as csv_file:
+    with open(resource_path('fileRecords.csv'), 'r') as csv_file:
         for line in csv_file:
             print(line)
             parts = line.strip().split(',')
@@ -56,7 +60,7 @@ def open_and_write(file_name, patient_dict):
         return
 
 
-    doc = fitz.open(f"origonalPDFs/{file_name}")
+    doc = fitz.open(resource_path(os.path.join("origonalPDFs", file_name)))
 
     
     for instruction in instructions:
@@ -77,9 +81,12 @@ def open_and_write(file_name, patient_dict):
         except Exception as e:
             print(f"Error adding text {text} to PDF: {e}")
 
-    doc.save(f"output/{file_name}_{int(time.time())}.pdf") # NEEDS TO BE CHANGES TO SAVE INTO A DUMP FOLDER, ALSO TO BE DELETED AFTER PRINTING. 
+    output_folder = get_output_folder()
+    output_filename = f"{Path(file_name).stem}_{int(time.time())}.pdf"
+    output_path = os.path.join(output_folder, output_filename)
+    doc.save(output_path)
     doc.close()
-    print(f"Saved: {f'output/{file_name}_{int(time.time())}.pdf'}")
+    print(f"Saved: {output_path}")
         
         
     

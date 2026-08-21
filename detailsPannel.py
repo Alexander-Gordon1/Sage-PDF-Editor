@@ -1,10 +1,14 @@
 from __future__ import annotations
 
+import os
 import csv
 from pathlib import Path
 from typing import Optional
-import datetime 
+import datetime
+
 from dataclasses import dataclass, field
+
+from utils import resource_path, get_output_folder
 
 from PySide6.QtCore import Qt, Slot
 from PySide6.QtWidgets import (
@@ -129,14 +133,14 @@ class DetailsPanel(QFrame):
             return []
         
         field_list: list[str] = []
-        csv_path = Path("fileRecordsRequired.csv")
+        csv_path = Path(resource_path("fileRecordsRequired.csv"))
         
         if not csv_path.exists():
             print(f"Warning: {csv_path} not found")
             return []
         
         try:
-            with open(csv_path, "r", encoding="utf-8") as f:
+            with open(resource_path("fileRecordsRequired.csv"), "r", encoding="utf-8") as f:
                 reader = csv.reader(f)
                 for row in reader:
                     if not row:

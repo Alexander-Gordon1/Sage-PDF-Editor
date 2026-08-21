@@ -1,10 +1,12 @@
 import sys
+import os
 import platform
 from pathlib import Path
 
 from PySide6.QtWidgets import QApplication
 from PySide6.QtGui import QIcon
 
+from utils import resource_path
 from mainWindow import MainWindow
 
 
@@ -12,17 +14,15 @@ def main() -> int:
     app = QApplication(sys.argv)
     
     # Set application icon at the app level for Windows taskbar
-    assets_dir = Path(__file__).resolve().parent / "assets"
-    
     # Choose icon based on OS
     if platform.system() == "Darwin":  # macOS
-        icon_path = assets_dir / "sage_logo.icns"
+        icon_path = Path(resource_path(os.path.join("assets", "sage_logo.icns")))
     else:  # Windows and Linux
-        icon_path = assets_dir / "sage_logo.ico"
+        icon_path = Path(resource_path(os.path.join("assets", "sage_logo.ico")))
     
     # Fallback to PNG if OS-specific icon not found
     if not icon_path.exists():
-        icon_path = assets_dir / "sage_logo.png"
+        icon_path = Path(resource_path(os.path.join("assets", "sage_logo.png")))
     
     if icon_path.exists():
         app.setApplicationDisplayName("Sage File Editor")

@@ -1,0 +1,9 @@
+compile instructions
+
+pyinstaller --onefile --windowed --name "WriterReducer" \
+  --icon "assets/sage_logo.icns" \
+  --add-data "assets:assets" \
+  --add-data "origonalPDFs:origonalPDFs" \
+  --add-data "fileRecords.csv:." \
+  --add-data "fileRecordsRequired.csv:." \
+  Main.py
